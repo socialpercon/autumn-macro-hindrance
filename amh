@@ -1,36 +1,67 @@
 #!/bin/bash
 
-. amh.config
+# External Vars - please change if needed
+
+## Group ID
+GROUP_ID=de.uvwxy
+
+## Base artifact id, e.g. the project
+BASE_ARTIFACT_ID=demo-cluster
+
+## Base service artifact ID
+ARTIFACT_SERVICE_ID=service
+
+## Spring Start Web Service
+SPRING_STARTER=https://start.spring.io
+
+## Config Repo
+CONFIG_REPO_URI=file:/$HOME/Code/repo/demo-cluster-config
+
+# Internal Vars - dont change
+APP_PROPS=src/main/resources/application.properties
+
+function checkCommandExists {
+	if [ -z "$(which $1)" ]; then
+		echo "Please install $1 first."
+		exit
+	fi
+}
 
 checkCommandExists mvn
 checkCommandExists curl
 checkCommandExists tar
 
 function download-spring-component {
-	curl https://start.spring.io/starter.tgz \
+	curl $SPRING_STARTER/starter.tgz \
 		-d dependencies=$2 \
-		-d packageName=$GROUP_ID \
+		-d packageName=$GROUP_ID.$1 \
 		-d groupId=$GROUP_ID \
-		-d artifacId=$1 \
+		-d artifactId=$1 \
 		-d type=maven-project \
-		-d applicationName=$1 \
+		-d name=$1 \
+		-d applicationName=App \
 		-d baseDir=$1 | tar -xzvf -
 }
 
 function eureka-server {
 	download-spring-component $BASE_ARTIFACT_ID-eureka-server cloud-eureka-server
+	echo 'server.port=${port:8889}' >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
 }
 
 function config-server {
 	download-spring-component $BASE_ARTIFACT_ID-config-server cloud-config-server
+	echo 'server.port=${port:8888}' >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
+	echo "spring.cloud.config.server.git.uri=$CONFIG_REPO_URI" >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
 }
 
 function zuul-server {
 	download-spring-component $BASE_ARTIFACT_ID-zuul-server
+	echo 'server.port=${port:8080}' >> $BASE_ARTIFACT_ID-zuul-server/$APP_PROPS
 }
 
 function micro-service {
 	download-spring-component $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1 cloud-eureka,cloud-config-client,cloud-ribbon
+
 }
 
 function forAllFolders {
@@ -44,7 +75,7 @@ function forAllFolders {
 }
 
 function package {
-	forAllFolders mvn clean package
+	forAllFolders mvn clean package -DskipTests # skipping tests you know, the only mode that works ;). jk. it's faster for testing
 }
 
 
