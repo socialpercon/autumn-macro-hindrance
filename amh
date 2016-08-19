@@ -1,0 +1,59 @@
+#!/bin/bash
+
+. amh.config
+
+checkCommandExists mvn
+checkCommandExists curl
+checkCommandExists tar
+
+function download-spring-component {
+	curl https://start.spring.io/starter.tgz \
+		-d dependencies=$2 \
+		-d packageName=$GROUP_ID \
+		-d groupId=$GROUP_ID \
+		-d artifacId=$1 \
+		-d type=maven-project \
+		-d applicationName=$1 \
+		-d baseDir=$1 | tar -xzvf -
+}
+
+function eureka-server {
+	download-spring-component $BASE_ARTIFACT_ID-eureka-server cloud-eureka-server
+}
+
+function config-server {
+	download-spring-component $BASE_ARTIFACT_ID-config-server cloud-config-server
+}
+
+function zuul-server {
+	download-spring-component $BASE_ARTIFACT_ID-zuul-server
+}
+
+function micro-service {
+	download-spring-component $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1 cloud-eureka,cloud-config-client,cloud-ribbon
+}
+
+function forAllFolders {
+	for i in $(ls); do
+		if [ -d $i ]; then
+			cd $i
+			$@
+			cd ..
+		fi
+	done;
+}
+
+function package {
+	forAllFolders mvn clean package
+}
+
+
+function demo {
+	eureka-server
+	config-server
+	zuul-server
+	micro-service task1
+	micro-service task2
+}
+
+$1 $2
