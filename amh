@@ -52,6 +52,10 @@ function config-server {
 	download-spring-component $BASE_ARTIFACT_ID-config-server cloud-config-server
 	echo 'server.port=${port:8888}' >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
 	echo "spring.cloud.config.server.git.uri=$CONFIG_REPO_URI" >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
+	APP_JAVA=$(find ./$BASE_ARTIFACT_ID-config-server -name App.java)
+	PKG=$(head -1 $APP_JAVA)
+	echo $PKG > $APP_JAVA
+	cat config-server-App.java >> $APP_JAVA
 }
 
 function zuul-server {
@@ -61,7 +65,7 @@ function zuul-server {
 
 function micro-service {
 	download-spring-component $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1 cloud-eureka,cloud-config-client,cloud-ribbon
-
+	echo "spring.application.name=$1" >> $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1/$APP_PROPS
 }
 
 function forAllFolders {
