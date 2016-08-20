@@ -51,6 +51,7 @@ checkCommandExists tar
 function download-spring-component {
 	echo "Creating $1"
 	curl -s $SPRING_STARTER/starter.tgz \
+		-d version=0.1.0-SNAPSHOT \
 		-d dependencies=$2 \
 		-d packageName=$GROUP_ID.$1 \
 		-d groupId=$GROUP_ID \
