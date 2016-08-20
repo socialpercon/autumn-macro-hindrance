@@ -11,14 +11,30 @@ BASE_ARTIFACT_ID=demo-cluster
 ## Base service artifact ID
 ARTIFACT_SERVICE_ID=service
 
+## Config Server Config Repo
+CONFIG_REPO_URI=https://github.com/uvwxy/amh-demo-cluster-config.git
+
 ## Spring Start Web Service
-SPRING_STARTER=https://start.spring.io
+# You should set SPRING_STARTER=https://start.spring.io", this is for testing
+SPRING_STARTER=http://localhost:8080
 
-## Config Repo
-CONFIG_REPO_URI=file:/$HOME/Code/repo/demo-cluster-config
 
-# Internal Vars - dont change
+
+# Internal Vars - don't change
+
+## Application properties within a project
 APP_PROPS=src/main/resources/application.properties
+
+# Helper functions
+
+function findAppJava {
+	find $1 -name App.java
+}
+
+function insertLine {
+	awk 'NR=='"$2"'{print "'"$3"'"}1' $1 > $1.tmp
+	mv $1.tmp $1
+}
 
 function checkCommandExists {
 	if [ -z "$(which $1)" ]; then
@@ -32,7 +48,7 @@ checkCommandExists curl
 checkCommandExists tar
 
 function download-spring-component {
-	curl $SPRING_STARTER/starter.tgz \
+	curl -s $SPRING_STARTER/starter.tgz \
 		-d dependencies=$2 \
 		-d packageName=$GROUP_ID.$1 \
 		-d groupId=$GROUP_ID \
@@ -40,22 +56,21 @@ function download-spring-component {
 		-d type=maven-project \
 		-d name=$1 \
 		-d applicationName=App \
-		-d baseDir=$1 | tar -xzvf -
+		-d baseDir=$1 | tar -xzf -
 }
 
 function eureka-server {
 	download-spring-component $BASE_ARTIFACT_ID-eureka-server cloud-eureka-server
-	echo 'server.port=${port:8889}' >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
+	echo 'server.port=${port:8889}' >> $BASE_ARTIFACT_ID-eureka-server/$APP_PROPS
 }
 
 function config-server {
 	download-spring-component $BASE_ARTIFACT_ID-config-server cloud-config-server
 	echo 'server.port=${port:8888}' >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
 	echo "spring.cloud.config.server.git.uri=$CONFIG_REPO_URI" >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
-	APP_JAVA=$(find ./$BASE_ARTIFACT_ID-config-server -name App.java)
-	PKG=$(head -1 $APP_JAVA)
-	echo $PKG > $APP_JAVA
-	cat config-server-App.java >> $APP_JAVA
+	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-config-server)
+	insertLine $APP_JAVA 4 "import org.springframework.cloud.config.server.EnableConfigServer;"
+	insertLine $APP_JAVA 7 "@EnableConfigServer"
 }
 
 function zuul-server {
@@ -82,6 +97,9 @@ function package {
 	forAllFolders mvn clean package -DskipTests # skipping tests you know, the only mode that works ;). jk. it's faster for testing
 }
 
+function clean-demo {
+	rm -rf demo-cluster-*
+}
 
 function demo {
 	eureka-server
