@@ -82,10 +82,10 @@ function zuul-server {
 	download-spring-component $BASE_ARTIFACT_ID-zuul-server cloud-zuul,cloud-config-client,cloud-eureka
 	echo 'spring.application.name='"$1"'' >> $BASE_ARTIFACT_ID-zuul-server/$APP_PROPS
 	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-zuul-server)
-	insertLine $APP_JAVA 5 "import org.springframework.cloud.netflix.zuul.EnableZuulServer;"
+	insertLine $APP_JAVA 5 "import org.springframework.cloud.netflix.zuul.EnableZuulProxy;"
 	insertLine $APP_JAVA 5 "import org.springframework.cloud.netflix.eureka.EnableEurekaClient;"
 	insertLine $APP_JAVA 9 "@EnableEurekaClient"
-	insertLine $APP_JAVA 9 "@EnableZuulServer"
+	insertLine $APP_JAVA 9 "@EnableZuulProxy"
 }
 
 function micro-service {
@@ -99,7 +99,7 @@ function micro-service {
 	insertLine $APP_JAVA 10 "@EnableEurekaClient"
 	insertLine $APP_JAVA 11 "@RestController"
 	insertLine $APP_JAVA 14 '    @Value(\"${info.foo}\") protected String foo;'
-	insertLine $APP_JAVA 15 '    @RequestMapping(\"/api/info\") public String info(){ return \"Hello Foo\" + foo;}'
+	insertLine $APP_JAVA 15 '    @RequestMapping(\"/api/info\") public String info(){ return \"Hello Foo \" + foo;}'
 }
 
 function forAllFolders {
