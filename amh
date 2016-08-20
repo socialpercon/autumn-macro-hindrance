@@ -12,14 +12,15 @@ BASE_ARTIFACT_ID=demo-cluster
 ARTIFACT_SERVICE_ID=service
 
 ## Config Server Config Repo
-#CONFIG_REPO_URI=https://github.com/uvwxy/amh-demo-cluster-config.git
-CONFIG_REPO_URI=file:/$HOME/Code/repo/demo-cluster-config
+CONFIG_REPO_URI=https://github.com/uvwxy/amh-demo-cluster-config.git
 
 ## Spring Start Web Service
-#SPRING_STARTER=https://start.spring.io
-SPRING_STARTER=http://localhost:8080
+SPRING_STARTER=https://start.spring.io
 
-
+if [ -e amh.conf ]; then
+	# override default settings via amh.conf
+	. amh.conf
+fi
 
 # Internal Vars - don't change
 
@@ -47,6 +48,7 @@ function checkCommandExists {
 checkCommandExists mvn
 checkCommandExists curl
 checkCommandExists tar
+checkCommandExists awk
 
 function download-spring-component {
 	echo "Creating $1"
@@ -122,7 +124,7 @@ function clean-demo {
 }
 
 function create-demo {
-	# the second parameters is the spring.application.name
+	# the second parameters will be the spring.application.name
 	eureka-server eureka
 	config-server
 	zuul-server zuul
