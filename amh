@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# External Vars - please change if needed
+# Config variables - please change if needed
 
 ## Group ID
 GROUP_ID=de.uvwxy
@@ -22,21 +22,16 @@ if [ -e amh.conf ]; then
 	. amh.conf
 fi
 
-# Internal Vars - don't change
+# Internal Vars - better don't change
+AMH_VERSION=0.1.0-SNAPSHOT
+AMH_BOOT_VERSION=1.4.0.RELEASE
+AMH_TYPE=maven-project
+AMH_APP_NAME=App
 
 ## Application properties within a project
 APP_PROPS=src/main/resources/application.properties
 
 # Helper functions
-
-function findAppJava {
-	find $1 -name App.java
-}
-
-function insertLine {
-	awk 'NR=='"$2"'{print "'"$3"'"}1' $1 > $1.tmp
-	mv $1.tmp $1
-}
 
 function checkCommandExists {
 	if [ -z "$(which $1)" ]; then
@@ -49,19 +44,30 @@ checkCommandExists mvn
 checkCommandExists curl
 checkCommandExists tar
 checkCommandExists awk
+checkCommandExists printf
+
+function findAppJava {
+	find $1 -name App.java
+}
+
+function insertLine {
+	awk 'NR=='"$2"'{print "'"$3"'"}1' $1 > $1.tmp
+	mv $1.tmp $1
+}
 
 function download-spring-component {
 	echo "Creating $1"
 	curl -s $SPRING_STARTER/starter.tgz \
-		-d version=0.1.0-SNAPSHOT \
-		-d dependencies=$2 \
-		-d packageName=$GROUP_ID.$1 \
+		-d version=$AMH_VERSION \
+		-d bootVersion=$AMH_BOOT_VERSION \
 		-d groupId=$GROUP_ID \
+		-d packageName=$GROUP_ID.$1 \
+		-d applicationName=$AMH_APP_NAME \
 		-d artifactId=$1 \
-		-d type=maven-project \
 		-d name=$1 \
-		-d applicationName=App \
-		-d baseDir=$1 | tar -xzf -
+		-d baseDir=$1 \
+		-d type=$AMH_TYPE \
+		-d dependencies=$2 | tar -xzf -
 }
 
 function eureka-server {

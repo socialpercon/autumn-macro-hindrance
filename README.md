@@ -3,14 +3,14 @@
 This is a Hello Micro Service World project. It is a bash script './amh' that generates projects from [Spring Cloud Netflix][3].
 The following components are covered:
 
-- Config: './amh config-server'
+- Config: `./amh config-server`
 	- Fetches config from configured git [repository][2]
-- Eureka: './amh eureka-server <app-name>'
+- Eureka: `./amh eureka-server <app-name>`
 	- Fetches config from config-server
-- Zuul: './amh zuul-server <app-name>'
+- Zuul: `./amh zuul-server <app-name>`
 	- Fetches config from config-server
 	- Reverse proxies micro services
-- Simple Micro Service: './amh micro-service <app-name>'
+- Simple Micro Service: `./amh micro-service <app-name>`
 	- Fetches config from config-server
 
 ## Idea / Demo
@@ -49,7 +49,7 @@ To add an additional micro service run `./amh micro-service my-service`.
 [Please create a bug report if something breaks. =)][1]
 
 ## What works
-- config-server [using this repo][2]
+- config-server [using the example repo][2]
 - eureka
 - zuul-server
 - micro-service
