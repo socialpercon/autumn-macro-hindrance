@@ -23,7 +23,7 @@ if [ -e amh.conf ]; then
 fi
 
 # Internal Vars - better don't change
-AMH_VERSION=0.1.0-SNAPSHOT
+AMH_VERSION=0.1.1-SNAPSHOT
 AMH_BOOT_VERSION=1.4.0.RELEASE
 AMH_TYPE=maven-project
 AMH_APP_NAME=App
