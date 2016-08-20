@@ -66,7 +66,7 @@ function eureka-server {
 	echo 'spring.application.name='"$1"'' >> $BASE_ARTIFACT_ID-eureka-server/$APP_PROPS
 	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-eureka-server)
 	insertLine $APP_JAVA 4 "import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;"
-	insertLine $APP_JAVA 7 "@EnableEurekaServer"
+	insertLine $APP_JAVA 8 "@EnableEurekaServer"
 }
 
 function config-server {
@@ -75,20 +75,31 @@ function config-server {
 	echo "spring.cloud.config.server.git.uri=$CONFIG_REPO_URI" >> $BASE_ARTIFACT_ID-config-server/$APP_PROPS
 	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-config-server)
 	insertLine $APP_JAVA 4 "import org.springframework.cloud.config.server.EnableConfigServer;"
-	insertLine $APP_JAVA 7 "@EnableConfigServer"
+	insertLine $APP_JAVA 8 "@EnableConfigServer"
 }
 
 function zuul-server {
-	download-spring-component $BASE_ARTIFACT_ID-zuul-server cloud-zuul,cloud-config-client
-	echo 'server.port=${port:8080}' >> $BASE_ARTIFACT_ID-zuul-server/$APP_PROPS
+	download-spring-component $BASE_ARTIFACT_ID-zuul-server cloud-zuul,cloud-config-client,cloud-eureka
+	echo 'spring.application.name='"$1"'' >> $BASE_ARTIFACT_ID-zuul-server/$APP_PROPS
+	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-zuul-server)
+	insertLine $APP_JAVA 5 "import org.springframework.cloud.netflix.zuul.EnableZuulServer;"
+	insertLine $APP_JAVA 5 "import org.springframework.cloud.netflix.eureka.EnableEurekaClient;"
+	insertLine $APP_JAVA 9 "@EnableEurekaClient"
+	insertLine $APP_JAVA 9 "@EnableZuulServer"
 }
 
 function micro-service {
 	download-spring-component $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1 cloud-eureka,cloud-config-client,cloud-ribbon
 	echo "spring.application.name=$1" >> $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1/$APP_PROPS
 	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1)
-	insertLine $APP_JAVA 4 "import org.springframework.cloud.netflix.eureka.EnableEurekaClient;"
-	insertLine $APP_JAVA 7 "@EnableEurekaClient"
+	insertLine $APP_JAVA 3 "import org.springframework.beans.factory.annotation.Value;"
+	insertLine $APP_JAVA 5 "import org.springframework.cloud.netflix.eureka.EnableEurekaClient;"
+	insertLine $APP_JAVA 5 "import org.springframework.web.bind.annotation.RestController;"
+	insertLine $APP_JAVA 5 "import org.springframework.web.bind.annotation.RequestMapping;"
+	insertLine $APP_JAVA 10 "@EnableEurekaClient"
+	insertLine $APP_JAVA 11 "@RestController"
+	insertLine $APP_JAVA 14 '    @Value(\"${info.foo}\") protected String foo;'
+	insertLine $APP_JAVA 15 '    @RequestMapping(\"/api/info\") public String info(){ return \"Hello Foo\" + foo;}'
 }
 
 function forAllFolders {
@@ -110,9 +121,10 @@ function clean-demo {
 }
 
 function create-demo {
+	# the second parameters is the spring.application.name
 	eureka-server eureka
 	config-server
-	zuul-server
+	zuul-server zuul
 	micro-service task1
 	micro-service task2
 	micro-service task3
