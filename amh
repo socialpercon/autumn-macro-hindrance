@@ -12,10 +12,11 @@ BASE_ARTIFACT_ID=demo-cluster
 ARTIFACT_SERVICE_ID=service
 
 ## Config Server Config Repo
-CONFIG_REPO_URI=https://github.com/uvwxy/amh-demo-cluster-config.git
+#CONFIG_REPO_URI=https://github.com/uvwxy/amh-demo-cluster-config.git
+CONFIG_REPO_URI=file:/$HOME/Code/repo/demo-cluster-config
 
 ## Spring Start Web Service
-# You should this to https://start.spring.io
+#SPRING_STARTER=https://start.spring.io
 SPRING_STARTER=http://localhost:8080
 
 
