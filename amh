@@ -48,6 +48,7 @@ checkCommandExists curl
 checkCommandExists tar
 
 function download-spring-component {
+	echo "Creating $1"
 	curl -s $SPRING_STARTER/starter.tgz \
 		-d dependencies=$2 \
 		-d packageName=$GROUP_ID.$1 \
@@ -60,8 +61,11 @@ function download-spring-component {
 }
 
 function eureka-server {
-	download-spring-component $BASE_ARTIFACT_ID-eureka-server cloud-eureka-server
-	echo 'server.port=${port:8889}' >> $BASE_ARTIFACT_ID-eureka-server/$APP_PROPS
+	download-spring-component $BASE_ARTIFACT_ID-eureka-server cloud-eureka-server,cloud-config-client
+	echo 'spring.application.name='"$1"'' >> $BASE_ARTIFACT_ID-eureka-server/$APP_PROPS
+	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-eureka-server)
+	insertLine $APP_JAVA 4 "import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;"
+	insertLine $APP_JAVA 7 "@EnableEurekaServer"
 }
 
 function config-server {
@@ -81,6 +85,9 @@ function zuul-server {
 function micro-service {
 	download-spring-component $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1 cloud-eureka,cloud-config-client,cloud-ribbon
 	echo "spring.application.name=$1" >> $BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1/$APP_PROPS
+	APP_JAVA=$(findAppJava ./$BASE_ARTIFACT_ID-$ARTIFACT_SERVICE_ID-$1)
+	insertLine $APP_JAVA 4 "import org.springframework.cloud.netflix.eureka.EnableEurekaClient;"
+	insertLine $APP_JAVA 7 "@EnableEurekaClient"
 }
 
 function forAllFolders {
@@ -101,8 +108,8 @@ function clean-demo {
 	rm -rf demo-cluster-*
 }
 
-function demo {
-	eureka-server
+function create-demo {
+	eureka-server eureka
 	config-server
 	zuul-server
 	micro-service task1
