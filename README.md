@@ -1,6 +1,6 @@
 # Autumn Macro Hindrance
 
-This is a Hello Micro Service World project. It is a bash script './amh' that generates projects from [Spring Cloud Netflix][3].
+This is a Hello Micro Service World project. It is a bash script called `./amh that generates projects based on components from [Spring Cloud Netflix][3].
 The following components are covered:
 
 - Config: `./amh config-server`
@@ -19,13 +19,13 @@ Use one line of bash to generate a Spring Cloud Netflix based micro service clus
 To setup the demo run
 
 ```
-./amh build-demo && ./amh package
+./amh create-demo && ./amh package
 ```
 
 This will produce
 
 ```
-#bash> ./amh build-demo && ./amh package
+#bash> ./amh create-demo && ./amh package
 Creating demo-cluster-eureka-server
 Creating demo-cluster-config-server
 Creating demo-cluster-zuul-server
