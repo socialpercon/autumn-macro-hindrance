@@ -13,13 +13,15 @@ Please configure the variables in the `./amh` script.
 
 Run `./amh demo && ./amh build`.
 
-Please create a bug report if something breaks. =)
+[Please create a bug report if something breaks. =)][1]
 
 ## What works
-- config-server (don't forget the config repo)
-    - add task1.yml and task2.yml (Seting server.port: 9001/9002, and so on)
+- config-server [using this repo][2]
 - Micro Service loading config from config-server
 
 
 ## What does not work
-- everything else, this is heavly under construction
+- everything else, this is heavily under construction
+
+[1]: https://github.com/uvwxy/autumn-macro-hindrance/issues
+[2]: https://github.com/uvwxy/amh-demo-cluster-config

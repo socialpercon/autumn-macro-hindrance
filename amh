@@ -15,7 +15,7 @@ ARTIFACT_SERVICE_ID=service
 CONFIG_REPO_URI=https://github.com/uvwxy/amh-demo-cluster-config.git
 
 ## Spring Start Web Service
-# You should set SPRING_STARTER=https://start.spring.io", this is for testing
+# You should this to https://start.spring.io
 SPRING_STARTER=http://localhost:8080
 
 
@@ -74,7 +74,7 @@ function config-server {
 }
 
 function zuul-server {
-	download-spring-component $BASE_ARTIFACT_ID-zuul-server
+	download-spring-component $BASE_ARTIFACT_ID-zuul-server cloud-zuul,cloud-config-client
 	echo 'server.port=${port:8080}' >> $BASE_ARTIFACT_ID-zuul-server/$APP_PROPS
 }
 
@@ -107,6 +107,7 @@ function demo {
 	zuul-server
 	micro-service task1
 	micro-service task2
+	micro-service task3
 }
 
 $1 $2
