@@ -13,6 +13,8 @@ The following components are covered:
 - Simple Micro Service: `./amh micro-service <app-name>`
 	- Fetches config from config-server
 
+![Image of demo-cluster setup](http://uvwxy.de/gh/amh-demo-cluster.png)
+
 ## Idea / Demo
 
 Use one line of bash to generate a Spring Cloud Netflix based micro service cluster.
